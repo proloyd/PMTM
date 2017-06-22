@@ -1,4 +1,4 @@
-# MultitaperSpectrum_from_BinaryNeuralData
+# PMTM Point Process Multitaper Method
 
 Description: This repository contains implementations of the multitaper PSD estimation method developed for binary spiking data.
 
