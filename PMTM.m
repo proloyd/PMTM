@@ -20,7 +20,7 @@ tol_Newton = 10^-5; % Stopping criterion for Newton's method
 %*************************Toy Example generation***************************
 % load data for Fig. 3A****************************************************
 
-load('./data/Data_new_6.mat');  
+load('Data.mat');  
 
 % else generate new data by the follwoing steps**************************** 
 
