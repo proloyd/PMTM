@@ -20,4 +20,4 @@ Contents:
     4. SS_latent_estimation.m: estimate latent process under AR(1) assumption, (used to generate SS-PSD).
     
 Instructions: Simple and easy.
-  Download all the codes in a directory and run the multitaperPsdBinarySpikes.m file, that will generate AR process, binary spiking data from it and finally the multitaper PSD estimate from the binary data. At the end, it will generate an overlay plot(similar to Fig. 3A in the paper) to compare it to other estimates.
+  Download all the codes in a directory and run the PMTM.m file, that will load the supplied binary spiking data and compute the multitaper PSD estimate from it. At the end, it will generate an overlay plot(Fig. 3A in the paper) to compare it to other estimates.
