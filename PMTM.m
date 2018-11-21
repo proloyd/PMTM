@@ -1,38 +1,82 @@
 clear all;
 close all;
 
-N = 256;  % number of spectrum samples in [0,fs/2) determining the 
+N = 128;  % number of spectrum samples in [0,fs/2) determining the 
           % frequency spacing fs/(2N) between samples  
           
-N_max = 256;  % number of desired spectrum samples which tends to be much 
+N_max = 128;  % number of desired spectrum samples which tends to be much 
               % lower then N in neural signals because of oversampling   
              
-K = 512;  % number of spiking samples per neuron
+K = 1024;  % number of spiking samples per neuron
 
 L = 40;  % number of neurons
 
-iter_Newton = 100;  % number of newton iterations per EM iteration
+iter_Newton = 200;  % number of newton iterations per EM iteration
 
-iter_EM = 100;  % number of EM iterations
+iter_EM = 200;  % number of EM iterations
 
-tol_Newton = 1e-50; % Stopping criterion for Newton's method
+tol_Newton = 1e-20; % Stopping criterion for Newton's method
 
 %*************************Toy Example generation***************************
+% old model
+% % AR process generation
+% B = 1; 
+% multiplier = 0.001;
+% % Coeff = conv( ...
+% %     conv([1 -0.965*exp(-2*1i*pi*0.10)], [1 -0.965*exp(2*1i*pi*0.10)]), ...
+% %     conv([1 -0.975*exp(-2*1i*pi*0.35)], [1 -0.975*exp(2*1i*pi*0.35)]) ...
+% %     );  % AR coeffs
+% 
+% Coeff = conv( ...
+%     conv([1 -0.965*exp(-2*1i*pi*0.05)], [1 -0.965*exp(2*1i*pi*0.05)]), ...
+%     conv([1 -0.972*exp(-2*1i*pi*0.21)], [1 -0.972*exp(2*1i*pi*0.21)]) ...
+%     );  % AR coeffs
+% 
+% [H_AR,W] = freqz(multiplier, Coeff, 256);  % Frequency response 
+%                                            % of the filter
+% 
+% b = randn(K+512, 1);                                
+% x_AR = filter(B, Coeff, multiplier * (b));       
+% y2 = x_AR(end - K + 1:end);
+% noise = multiplier * randn(size(y2)); 
+% % y2 = y2 + noise;
+% CIF = (y2 + 0.04);  % baseline spiking rate = 1.2
+% 
+% % Spiking data generation by Thinning
+% spikes = zeros(length(y2), L);
+% for i = 1:L
+%     spikes(:, i) = (CIF > rand(length(y2), 1));
+%     rng('shuffle');
+% end
+
+% new model
 % AR process generation
 B = 1; 
-multiplier = 0.025;
-Coeff = conv( ...
-    conv([1 -0.965*exp(-2*1i*pi*0.10)], [1 -0.965*exp(2*1i*pi*0.10)]), ...
-    conv([1 -0.975*exp(-2*1i*pi*0.35)], [1 -0.975*exp(2*1i*pi*0.35)]) ...
-    );  % AR coeffs
+multiplier = 0.003;
 
-[H_AR,W] = freqz(multiplier, Coeff, 256);  % Frequency response 
+Coeff1 = conv([1 -0.965*exp(-2*1i*pi*0.1)], [1 -0.965*exp(2*1i*pi*0.1)]);
+    
+Coeff2 = conv([1 -0.975*exp(-2*1i*pi*0.36)], [1 -0.975*exp(2*1i*pi*0.36)]);
+% 
+% Coeff1 = conv([1 -0.965*exp(-2*1i*pi*0.1)], [1 -0.965*exp(2*1i*pi*0.1)]);
+%     
+% Coeff2 = conv([1 -0.975*exp(-2*1i*pi*0.36)], [1 -0.975*exp(2*1i*pi*0.36)]);
+
+[H_AR1, ~] = freqz(multiplier, Coeff1, 256);  % Frequency response 
                                            % of the filter
+[H_AR2, W] = freqz(multiplier, Coeff2, 256);  % Frequency response 
+                                           % of the filter
+H_AR = sqrt(abs(H_AR1).^2 + abs(H_AR2).^2);
 
-b = randn(K+512, 1);                                
-x_AR = filter(B, Coeff, multiplier * (b));       
+b = randn(K+512, 2);
+x_AR1 = filter(B, Coeff1, multiplier * b(:,1));
+x_AR2 = filter(B, Coeff2, multiplier * b(:,2));
+x_AR = x_AR1 + x_AR2;
+
 y2 = x_AR(end - K + 1:end);
-CIF = (y2 + 0.12);  % baseline spiking rate = 1.2
+noise = multiplier * randn(size(y2)); 
+% y2 = y2 + noise;
+CIF = (y2 + 0.04);  % baseline spiking rate = 1.2
 
 % Spiking data generation by Thinning
 spikes = zeros(length(y2), L);
@@ -47,11 +91,13 @@ subplot(2, 1, 1), plot(CIF);
 xlabel('$$k$$', 'Interpreter', 'Latex');
 ylabel('Amplitude','Interpreter','Latex');
 xlim([200.5, 350.5]);
-xlim([1,K]);
-subplot(2, 1, 2), SpikeRasterPlot(spikes(:, 1:10)');
+xlim([1, 512])
+subplot(2, 1, 2), SpikeRasterPlot(spikes');
 xlabel('$$k$$', 'Interpreter','Latex');
 ylabel('Trials','Interpreter','Latex');
 xlim([200.5, 350.5]);
+% xlim([1, 512])
+%%
 %**************************************************************************
 
 %*****************************PMTM ESTIMATION****************************** 
@@ -81,7 +127,7 @@ PSTH = mean(spikes, 2); % PSTH calculation
 
 mu_hat = mean(PSTH); % Estimate of true mu
 
-gamma = 1e-0;
+gamma = 1e-2; % 1e-2
    
 childPSTH = [];
 for k = 1:size(dps_seq, 2) - 2
@@ -180,7 +226,7 @@ pp_mt_est = mean(S_pp_mt, 2); % PMTM PSD
 
 %**************************************************************************
 
-%%
+%
 %************************Oracle,PSTH,SS PSD********************************
 
 % SS CIF estimation
@@ -203,7 +249,7 @@ pp_ss_est = mean(S_ss, 2); % SS PSD
 
 %**************************************************************************
 
-%%
+%
 %********************************Overlay plot******************************
 figure, 
 plot((1:N_max) / (2 * N), 10 * log10(pp_mt_est * K / N), ...
@@ -223,14 +269,14 @@ xlabel('Normalized Frequency', 'Interpreter', 'Latex');
 ylabel('Power/Frequency $$(dB/rad/sample)$$', 'Interpreter', 'Latex');
 
 %*********************************MSE calculation**************************
-lin_MSE_pp = sum(((pp_est(2:256) - abs(H_AR(2:end)) .^ 2) .^2 ) ...
-    ./ (abs(H_AR(2:end)) .^ 2));
-lin_MSE_pp_mt = sum(((pp_mt_est(2:end) - abs(H_AR(2:end)) .^ 2) .^ 2) ...
-    ./ (abs(H_AR(2:end)) .^ 2));
-lin_MSE_pp_ss = sum(((pp_ss_est(2:256) - abs(H_AR(2:end)) .^ 2) .^ 2) ...
-    ./ (abs(H_AR(2:end)) .^ 2));
-
-fprintf('Method \t \t MSE\n');
-fprintf('PSTH-PSD \t %f\n', lin_MSE_pp);
-fprintf('PMTM-PSD \t %f\n', lin_MSE_pp_mt);
-fprintf('SS-PSD \t \t %f\n', lin_MSE_pp_ss);
+% lin_MSE_pp = sum(((pp_est(2:256) - abs(H_AR(2:end)) .^ 2) .^2 ) ...
+%     ./ (abs(H_AR(2:end)) .^ 2));
+% lin_MSE_pp_mt = sum(((pp_mt_est(2:end) - abs(H_AR(2:end)) .^ 2) .^ 2) ...
+%     ./ (abs(H_AR(2:end)) .^ 2));
+% lin_MSE_pp_ss = sum(((pp_ss_est(2:256) - abs(H_AR(2:end)) .^ 2) .^ 2) ...
+%     ./ (abs(H_AR(2:end)) .^ 2));
+% 
+% fprintf('Method \t \t MSE\n');
+% fprintf('PSTH-PSD \t %f\n', lin_MSE_pp);
+% fprintf('PMTM-PSD \t %f\n', lin_MSE_pp_mt);
+% fprintf('SS-PSD \t \t %f\n', lin_MSE_pp_ss);
