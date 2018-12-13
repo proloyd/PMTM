@@ -6,8 +6,6 @@ Copyright (c) 2017 Proloy Das All Rights Reserved
 
 Contact: proloy@umd.edu
 
-(Das and Babadi, Multitaper Spectral Analysis of Neuronal Spiking Activity Driven by Latent Stationary Processes,(under review) Submitted @ IEEE Signal Process. Lett. on )
-
 Requirements:
   implemented in Matlab R2013b version, but should run on most versions.
   
