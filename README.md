@@ -2,9 +2,9 @@
 
 Description: This repository contains implementations of the multitaper PSD estimation method developed for binary spiking data.
 
-[1] Das, P., & Babadi, B. (2019). [Multitaper Spectral Analysis of Neuronal Spiking Activity Driven by Latent Stationary Processes.](https://arxiv.org/pdf/1906.08451) arXiv preprint arXiv:1906.08451.
+[1] Proloy Das,  Behtash Babadi,  Multitaper Spectral Analysis of Neuronal Spiking Activity Driven by Latent Stationary Processes, Signal Processing (2019), doi:https://doi.org/10.1016/j.sigpro.2019.107429.
 
-Copyright (c) 2017 Proloy Das All Rights Reserved 
+Copyright (c) 2017 Proloy Das All Rights Reserved   
 
 Contact: proloy@umd.edu
 
