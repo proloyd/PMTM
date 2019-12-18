@@ -1,10 +1,10 @@
 # PMTM Point Process Multitaper Method
 
-Description: This repository contains implementations of the multitaper PSD estimation method developed for binary spiking data.
+Description: This repository contains implementations of the multitaper PSD estimation method developed for binary spiking data described in:
 
 [1] Proloy Das,  Behtash Babadi,  Multitaper Spectral Analysis of Neuronal Spiking Activity Driven by Latent Stationary Processes, Signal Processing (2019), doi:https://doi.org/10.1016/j.sigpro.2019.107429.
 
-Copyright (c) 2017 Proloy Das All Rights Reserved   
+Anyone is free to use or modify the codebase for their publication under the. In such cases, I will appreciate if you cite the abovementioned paper.
 
 Contact: proloy@umd.edu
 
